@@ -4,17 +4,7 @@ namespace Aqarmap\NotificationBundle\Notifications;
 
 use Aqarmap\NotificationBundle\Notifications\Notification;
 
-class NewListing extends Notification{
-
-    public function channel()
-    {
-
-    }
-
-    public function queue()
-    {
-
-    }
+class Interest extends Notification {
 
     public function toMail()
     {

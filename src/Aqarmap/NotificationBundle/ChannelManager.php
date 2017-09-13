@@ -52,7 +52,7 @@ class ChannelManager {
     {
         $method = 'create'.ucfirst($type).'Driver';
 
-        if (!method_exists($this, $method)){
+        if (! method_exists($this, $method)){
             throw new DriverNotFoundException("We don't support {$type} Driver");
         }
 
@@ -62,24 +62,31 @@ class ChannelManager {
     public function getConfig($notifiction, $type)
     {
         try {
-            $notifiction = (new ReflectionClass($notifiction))->getShortName();
+            $key = (new ReflectionClass($notifiction))->getShortName();
 
-            if (isset($this->config[$notifiction][$type])){
-                return $this->config[$notifiction][$type];
+            if (isset($this->config[$key][$type])){
+                return $this->config[$key][$type];
             }
 
-            return $this->config[$notifiction][$type]= $this->parserConfig($notifiction)[$type];
+            $config = $this->parserConfig();
+            $this->config[$key][$type] = (isset($config[$key][$type])) ? $config[$key][$type] : $notifiction->$type;
+
+            return $this->config[$key][$type];
 
         } catch (Exception $e) {
             throw new NotificationConfigException("
-                We can't find config for [$notifiction][$type] go to notifications.yml
+                We can't find config for [$key][$type] go to notifications.yml
             ");
         }
     }
 
-    private function parserConfig($notifiction)
+    private function parserConfig()
     {
-        $yaml = new Parser();
-        return $yaml->parse(file_get_contents(__DIR__.'/Resources/config/notifications.yml'))['notifications'][$notifiction];
+        return (new Parser())->parse(file_get_contents(__DIR__.'/Resources/config/notifications.yml'));
+    }
+
+    public function foo()
+    {
+        $this->parserConfig();
     }
 }

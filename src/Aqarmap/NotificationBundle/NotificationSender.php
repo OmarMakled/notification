@@ -13,8 +13,8 @@ use ReflectionClass;
 class NotificationSender {
 
     protected $manager;
-    protected $dispatcher;
 
+    protected $dispatcher;
 
     public function __construct(ChannelManager $manager, EventDispatcherInterface $dispatcher)
     {

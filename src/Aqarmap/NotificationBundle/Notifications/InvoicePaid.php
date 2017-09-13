@@ -2,7 +2,19 @@
 
 namespace Aqarmap\NotificationBundle\Notifications;
 
-class InvoicePaid {
+use Aqarmap\NotificationBundle\Notifications\Notification;
+
+class InvoicePaid extends Notification{
+
+    public function channel()
+    {
+
+    }
+
+    public function queue()
+    {
+
+    }
 
     public function toMail()
     {
