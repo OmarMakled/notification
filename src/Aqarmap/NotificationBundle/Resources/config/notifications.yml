@@ -1,0 +1,9 @@
+notifications:
+    InvoicePaid:
+        class: Aqarmap\NotificationBundle\Notifications\InvoicePaid
+        channel: ['sms', 'database', 'mail']
+        queue: []
+    NewListing:
+        class: Aqarmap\NotificationBundle\Notifications\NewListing
+        channel: ['sms', 'database', 'mail']
+        queue: ['sms', 'database', 'mail']
