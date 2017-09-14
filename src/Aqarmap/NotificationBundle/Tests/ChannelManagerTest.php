@@ -8,13 +8,15 @@
 
 namespace Aqarmap\NotificationBundle\Tests;
 
+use Mockery;
+use Aqarmap\NotificationBundle\Config;
 use Aqarmap\NotificationBundle\ChannelManager;
 use Aqarmap\NotificationBundle\NotificationSender;
+use Aqarmap\NotificationBundle\Tests\Notification;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Aqarmap\NotificationBundle\Exceptions\DriverNotFoundException;
 use Aqarmap\NotificationBundle\Exceptions\NotificationConfigException;
 use Aqarmap\NotificationBundle\Notifications\Notification as BaseNotification;
-use Mockery;
 
 class ChannelManagerTest extends WebTestCase
 {
@@ -43,13 +45,20 @@ class ChannelManagerTest extends WebTestCase
     public function testDriverNotFoundException()
     {
         $this->expectException(DriverNotFoundException::class);
-
+        $this->expectExceptionMessage("We don't support foo Driver");
         $this->manager->driver('foo');
     }
 
     public function testNotificationConfigException()
     {
         $this->expectException(NotificationConfigException::class);
+        $this->expectExceptionMessage(
+                sprintf("We can't find config for %s inside %s or class %s",
+                    'foo',
+                    (new Config)::CONFIG_PATH,
+                    \Aqarmap\NotificationBundle\Tests\Notification::class
+                )
+        );
         $this->notification->channel = ['sms', 'database', 'mail'];
         $this->notification->queue = ['mail'];
 
@@ -71,40 +80,14 @@ class ChannelManagerTest extends WebTestCase
 
     public function testGetChannelAndQueueFromConfigFile()
     {
-        $manager = Mockery::mock(ChannelManager::class.'[driver]', [$this->app]);
+        $config = $this->manager->getConfig($this->notification, 'channel', __DIR__.'/stubs/config.yml');
+        $this->assertEquals(['sms', 'database', 'mail'], $config);
 
-        dump($manager); die();
-        // $manager = Mockery::mock(new ChannelManager($this->app));
-
-        $manager->shouldReceive('parseCadadsonfig')->times(1);//;->andReturn(['foo']);
-
-        $manager->foo();
-    }
-
-    public function testMock()
-    {
-        $foo = Mockery::mock(Foo::class);
-
-        // $foo->shouldReceive('m1')->once()->andReturn('m1');
-        $foo->shouldReceive('m2')->once()->andReturn('m11');
-        $foo->shouldReceive('m1')->times(10)->andReturn('m11');
-
-        $this->assertEquals('m1', $foo->m2());
+        $config = $this->manager->getConfig($this->notification, 'queue', __DIR__.'/stubs/config.yml');
+        $this->assertEquals(['sms', 'database', 'mail'], $config);
     }
 }
 
 class Notification extends BaseNotification
 {
-}
-
-class Foo {
-    public function m1()
-    {
-        return 'm1';
-    }
-
-    public function m2()
-    {
-        return $this->m1();
-    }
 }

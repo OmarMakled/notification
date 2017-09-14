@@ -1,0 +1,4 @@
+Notification:
+    class: Aqarmap\NotificationBundle\Tests\Notification
+    channel: ['sms', 'database', 'mail']
+    queue: ['sms', 'database', 'mail']

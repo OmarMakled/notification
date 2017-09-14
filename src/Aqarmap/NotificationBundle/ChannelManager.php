@@ -5,6 +5,7 @@ namespace Aqarmap\NotificationBundle;
 use Exception;
 use ReflectionClass;
 use Symfony\Component\Yaml\Parser;
+use Aqarmap\NotificationBundle\Config;
 use Aqarmap\NotificationBundle\NotificationSender;
 use Aqarmap\NotificationBundle\Channels\SmsChannel;
 use Aqarmap\NotificationBundle\Channels\MailChannel;
@@ -12,13 +13,10 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Aqarmap\NotificationBundle\Channels\DatabaseChannel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Aqarmap\NotificationBundle\Exceptions\DriverNotFoundException;
-use Aqarmap\NotificationBundle\Exceptions\NotificationConfigException;
 
 class ChannelManager {
 
     public $app;
-
-    public $config;
 
     public function __construct(ContainerInterface $app)
     {
@@ -59,34 +57,9 @@ class ChannelManager {
         return $this->$method();
     }
 
-    public function getConfig($notifiction, $type)
+    public function getConfig($notifiction, $type, $path = null)
     {
-        try {
-            $key = (new ReflectionClass($notifiction))->getShortName();
-
-            if (isset($this->config[$key][$type])){
-                return $this->config[$key][$type];
-            }
-
-            $config = $this->parserConfig();
-            $this->config[$key][$type] = (isset($config[$key][$type])) ? $config[$key][$type] : $notifiction->$type;
-
-            return $this->config[$key][$type];
-
-        } catch (Exception $e) {
-            throw new NotificationConfigException("
-                We can't find config for [$key][$type] go to notifications.yml
-            ");
-        }
+        return (new Config())->getConfig($notifiction, $type, $path);
     }
 
-    private function parserConfig()
-    {
-        return (new Parser())->parse(file_get_contents(__DIR__.'/Resources/config/notifications.yml'));
-    }
-
-    public function foo()
-    {
-        $this->parserConfig();
-    }
 }
