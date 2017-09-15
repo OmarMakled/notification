@@ -5,7 +5,7 @@ namespace Aqarmap\NotificationBundle;
 use Exception;
 use ReflectionClass;
 use Symfony\Component\Yaml\Parser;
-use Aqarmap\NotificationBundle\Config;
+use Aqarmap\NotificationBundle\NotificationConfig;
 use Aqarmap\NotificationBundle\NotificationSender;
 use Aqarmap\NotificationBundle\Channels\SmsChannel;
 use Aqarmap\NotificationBundle\Channels\MailChannel;
@@ -13,10 +13,13 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Aqarmap\NotificationBundle\Channels\DatabaseChannel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Aqarmap\NotificationBundle\Exceptions\DriverNotFoundException;
+use Aqarmap\NotificationBundle\Exceptions\NotificationConfigException;
 
-class ChannelManager {
+class ChannelManager
+{
+    private $app;
 
-    public $app;
+    public $config;
 
     public function __construct(ContainerInterface $app)
     {
@@ -50,7 +53,7 @@ class ChannelManager {
     {
         $method = 'create'.ucfirst($type).'Driver';
 
-        if (! method_exists($this, $method)){
+        if (! method_exists($this, $method)) {
             throw new DriverNotFoundException("We don't support {$type} Driver");
         }
 
@@ -59,7 +62,14 @@ class ChannelManager {
 
     public function getConfig($notifiction, $type, $path = null)
     {
-        return (new Config())->getConfig($notifiction, $type, $path);
-    }
+        if (empty($this->config)) {
+            $this->config = (new NotificationConfig($notifiction, $path))->getConfig();
+        }
 
+        if (! isset($this->config[$type])) {
+            throw new NotificationConfigException("We can't find config $type");
+        }
+
+        return $this->config[$type];
+    }
 }

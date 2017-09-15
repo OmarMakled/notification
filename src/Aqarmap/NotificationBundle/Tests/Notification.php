@@ -1,10 +1,11 @@
 <?php
 
-namespace Aqarmap\NotificationBundle\Notifications;
+namespace Aqarmap\NotificationBundle\Tests;
 
-use Aqarmap\NotificationBundle\Notifications\Notification;
+use Aqarmap\NotificationBundle\Notifications\Notification as BaseNotification;
 
-class NewListing extends Notification{
+class Notification extends BaseNotification
+{
 
     public function toMail()
     {
@@ -20,5 +21,4 @@ class NewListing extends Notification{
     {
         return 'message to database';
     }
-
 }

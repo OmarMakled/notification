@@ -8,7 +8,7 @@ abstract class Notification {
      *
      * @var array
      */
-    public $channel = ['database'];
+    public $channel = [];
 
     /**
      * List of queues
